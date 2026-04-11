@@ -10,7 +10,7 @@
             <!-- Brand -->
             <div class="footer-brand">
                 <a href="index.php" class="site-logo" style="margin-bottom:12px;">
-                    <div class="logo-icon">🛒</div>
+                    <img src="http://localhost/omnes_mp/assets/images/OMNES_ICON_PNG.png" alt="Omnes Icon" class="logo-icon">
                     Omnes <span>Market</span>Place
                 </a>
                 <p>Your curated marketplace for Regular, High-End, and Rare collectibles. Buy it now, negotiate, or bid.</p>
@@ -19,7 +19,9 @@
             <!-- Shop links -->
             <div>
                 <p class="footer-heading">Shop</p>
+
                 <div class="footer-links">
+                    <a href="about.php">About Us</a>
                     <a href="products.php">Browse All</a>
                     <a href="products.php?cat=rare">Rare Items</a>
                     <a href="products.php?cat=high_end">High-End</a>
@@ -66,8 +68,10 @@
 </footer>
 
 <script src="assets/scripts/main.js"></script>
-<?php if (!empty($extra_scripts)): foreach ($extra_scripts as $s): ?>
-<script src="<?php echo htmlspecialchars($s); ?>"></script>
-<?php endforeach; endif; ?>
+<?php if (!empty($extra_scripts)):
+    foreach ($extra_scripts as $s): ?>
+        <script src="<?php echo htmlspecialchars($s); ?>"></script>
+    <?php endforeach; endif; ?>
 </body>
+
 </html>

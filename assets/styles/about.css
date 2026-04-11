@@ -1,0 +1,244 @@
+/* ============================================================
+   ABOUT PAGE — extra CSS
+   Paste this block at the very end of assets/styles/main.css
+   ============================================================ */
+
+/* ── History section: text + timeline side by side ────────── */
+.about-history {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 60px;
+    align-items: start;
+    margin-top: 56px;
+}
+
+.about-history-text p {
+    color: var(--gray-600);
+    margin-bottom: 16px;
+    font-size: 0.975rem;
+}
+
+.about-history-text h2 {
+    margin-bottom: 24px;
+    margin-top: 8px;
+}
+
+/* ── Timeline ──────────────────────────────────────────────── */
+.about-timeline {
+    position: sticky;
+    top: calc(var(--nav-height) + 24px);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding-left: 16px;
+    border-left: 2px solid var(--purple-200);
+}
+
+.timeline-item {
+    position: relative;
+    padding: 0 0 28px 24px;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: -9px;
+    top: 4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--purple-500);
+    border: 3px solid var(--purple-50);
+    box-shadow: 0 0 0 2px var(--purple-400);
+}
+
+.timeline-year {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--purple-500);
+    margin-bottom: 4px;
+}
+
+.timeline-event {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    line-height: 1.55;
+}
+
+/* ── Team grid ─────────────────────────────────────────────── */
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 28px;
+}
+
+.team-card {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.team-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.team-avatar {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: var(--purple-100);
+    max-height: 220px;
+}
+
+.team-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.team-info {
+    padding: 20px 22px 24px;
+}
+
+.team-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--purple-900);
+    margin-bottom: 4px;
+}
+
+.team-position {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--purple-500);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 6px;
+}
+
+.team-qual {
+    font-size: 0.8rem;
+    color: var(--gray-400);
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.team-bio {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+/* ── Branches grid ─────────────────────────────────────────── */
+.branches-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.branch-card {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 32px 28px;
+    box-shadow: var(--shadow-sm);
+    border-top: 4px solid var(--purple-400);
+    transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.branch-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.branch-card--hq {
+    border-top-color: var(--gold);
+}
+
+.branch-icon {
+    font-size: 2.2rem;
+    margin-bottom: 12px;
+}
+
+.branch-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--purple-400);
+    margin-bottom: 4px;
+}
+
+.branch-card--hq .branch-label {
+    color: var(--gold);
+}
+
+.branch-city {
+    font-size: 1.6rem;
+    font-family: var(--font-display);
+    color: var(--purple-900);
+    margin-bottom: 8px;
+}
+
+.branch-address {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    margin-bottom: 16px;
+    line-height: 1.6;
+}
+
+.branch-details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.branch-details li {
+    font-size: 0.85rem;
+    color: var(--gray-600);
+}
+
+.branch-note {
+    font-size: 0.85rem;
+    color: var(--gray-400);
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+/* ── Responsive overrides ──────────────────────────────────── */
+@media (max-width: 1024px) {
+    .about-history {
+        grid-template-columns: 1fr;
+    }
+
+    .about-timeline {
+        position: static;
+    }
+
+    .branches-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .branches-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+}

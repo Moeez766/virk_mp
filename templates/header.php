@@ -42,7 +42,8 @@ if (!isset($page_title))
 
             <!-- Logo -->
             <a href="index.php" class="site-logo">
-                <div class="logo-icon">🛒</div>
+                <img src="http://localhost/omnes_mp/assets/images/OMNES_ICON_PNG.png" alt="Omnes Icon" class="logo-icon">
+                <!-- <div class="logo-icon">🛒</div> -->
                 Omnes <span>Market</span>Place
             </a>
 
@@ -54,43 +55,45 @@ if (!isset($page_title))
                 <a href="products.php" class="nav-link <?php echo $current_page === 'products.php' ? 'active' : ''; ?>">
                     Browse All
                 </a>
-                    <?php if (isLoggedIn()): ?>
+                <a href="about.php" class="nav-link <?php echo $current_page === 'about.php' ? 'active' : ''; ?>">About Us</a>
+
+                <?php if (isLoggedIn()): ?>
                     <a href="notifications.php" class="nav-link <?php echo $current_page === 'notifications.php' ? 'active' : ''; ?>">
                         Notifications
-                                <?php if ($notif_count > 0): ?>
+                        <?php if ($notif_count > 0): ?>
                             <span class="nav-badge"><?php echo $notif_count; ?></span>
-                                <?php endif; ?>
+                        <?php endif; ?>
                     </a>
                     <a href="cart.php" class="nav-link <?php echo $current_page === 'cart.php' ? 'active' : ''; ?>">
                         Cart
-                                <?php if ($cart_count > 0): ?>
+                        <?php if ($cart_count > 0): ?>
                             <span class="nav-badge"><?php echo $cart_count; ?></span>
-                                <?php endif; ?>
+                        <?php endif; ?>
                     </a>
                     <a href="account.php" class="nav-link <?php echo $current_page === 'account.php' ? 'active' : ''; ?>">
-                                <?php echo htmlspecialchars($_SESSION['username']); ?>
+                        <?php echo htmlspecialchars($_SESSION['username']); ?>
                     </a>
-                            <?php if (isAdmin()): ?>
+                    <?php if (isAdmin()): ?>
                         <a href="admin.php" class="nav-link <?php echo $current_page === 'admin.php' ? 'active' : ''; ?>">
                             Admin
                         </a>
-                            <?php endif; ?>
-                            <?php if (isSeller()): ?>
+                    <?php endif; ?>
+                    <?php if (isSeller()): ?>
                         <a href="seller.php" class="nav-link <?php echo $current_page === 'seller.php' ? 'active' : ''; ?>">
                             My Listings
                         </a>
-                            <?php endif; ?>
                     <?php endif; ?>
+                <?php endif; ?>
             </nav>
 
             <!-- Auth buttons or logout -->
             <div class="header-auth">
-                    <?php if (isLoggedIn()): ?>
+                <?php if (isLoggedIn()): ?>
                     <a href="includes/logout.php" class="btn-header-login">Log Out</a>
-                    <?php else: ?>
+                <?php else: ?>
                     <a href="login.php" class="btn-header-login">Log In</a>
                     <a href="register.php" class="btn-header-register">Register</a>
-                    <?php endif; ?>
+                <?php endif; ?>
             </div>
 
             <!-- Mobile hamburger -->
@@ -110,9 +113,9 @@ if (!isset($page_title))
         ?>
         <div class="container" style="padding-top:16px;">
             <div class="alert alert-<?php echo htmlspecialchars($flash['type']); ?>" data-auto-dismiss>
-                        <?php echo htmlspecialchars($flash['message']); ?>
+                <?php echo htmlspecialchars($flash['message']); ?>
             </div>
         </div>
-        <?php endif; ?>
+    <?php endif; ?>
 
     <main class="main-content">
