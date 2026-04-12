@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="auth-card" style="max-width:560px;">
             <div class="auth-logo">
                 <a href="index.php" class="site-logo" style="justify-content:center;">
-                    <img src="http://localhost/omnes_mp/assets/images/OMNES_ICON_PNG.png" alt="Omnes Icon" class="logo-icon">
+                    <img src="assets/images/OMNES_ICON_PNG.png" alt="Omnes Icon" class="logo-icon">
                     Omnes <span>Market</span>Place
                 </a>
                 <h2>Create Account</h2>

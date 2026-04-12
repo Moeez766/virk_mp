@@ -10,7 +10,7 @@
             <!-- Brand -->
             <div class="footer-brand">
                 <a href="index.php" class="site-logo" style="margin-bottom:12px;">
-                    <img src="http://localhost/omnes_mp/assets/images/OMNES_ICON_PNG.png" alt="Omnes Icon" class="logo-icon">
+                    <img src="assets/images/OMNES_ICON_PNG.png" alt="Omnes Icon" class="logo-icon">
                     Omnes <span>Market</span>Place
                 </a>
                 <p>Your curated marketplace for Regular, High-End, and Rare collectibles. Buy it now, negotiate, or bid.</p>

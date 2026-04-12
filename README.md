@@ -8,9 +8,9 @@ An e-commerce platform for the Omnes Education community built with native PHP, 
 
 | Role            | Email                       | Password    |
 |-----------------|-----------------------------|-----------  |
-| Administrator   | <admin@omnesmp.com>         | Admin@1234  |
-| Seller          | <seller@omnesmp.com>        | Seller@1234 |
-| Buyer           | <buyer@omnesmp.com>         | Buyer@1234  |
+| Administrator   | <admin@omnesmp.com>         | Admin@123   |
+| Seller          | <seller@omnesmp.com>        | Seller@123  |
+| Buyer           | <buyer@omnesmp.com>         | Buyer@123   |
 
 > You can also create your own buyer account from the Register page.
 

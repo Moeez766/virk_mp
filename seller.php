@@ -19,40 +19,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // ─ Add product ─────────────────────────────────────────
     if ($action === 'add_product') {
-        $name        = sanitize($_POST['name']        ?? '');
+        $name = sanitize($_POST['name'] ?? '');
         $description = sanitize($_POST['description'] ?? '');
-        $defects     = sanitize($_POST['defects']     ?? '');
-        $price       = (float)($_POST['price']        ?? 0);
-        $category    = sanitize($_POST['category']    ?? '');
-        $sale_type   = sanitize($_POST['sale_type']   ?? '');
+        $defects = sanitize($_POST['defects'] ?? '');
+        $price = (float) ($_POST['price'] ?? 0);
+        $category = sanitize($_POST['category'] ?? '');
+        $sale_type = sanitize($_POST['sale_type'] ?? '');
         $auction_start = sanitize($_POST['auction_start'] ?? '');
-        $auction_end   = sanitize($_POST['auction_end']   ?? '');
+        $auction_end = sanitize($_POST['auction_end'] ?? '');
 
-        $allowed_cats  = ['rare', 'high_end', 'regular'];
+        $allowed_cats = ['rare', 'high_end', 'regular'];
         $allowed_sales = ['buy_now', 'negotiation', 'best_offer'];
 
         $errors = [];
-        if (empty($name))                             $errors[] = 'Product name is required.';
-        if ($price <= 0)                              $errors[] = 'Price must be greater than 0.';
-        if (!in_array($category,  $allowed_cats))     $errors[] = 'Invalid category.';
-        if (!in_array($sale_type, $allowed_sales))    $errors[] = 'Invalid sale type.';
-        if ($sale_type === 'best_offer' && empty($auction_end)) $errors[] = 'Auction end date is required for Best Offer items.';
+        if (empty($name))
+            $errors[] = 'Product name is required.';
+        if ($price <= 0)
+            $errors[] = 'Price must be greater than 0.';
+        if (!in_array($category, $allowed_cats))
+            $errors[] = 'Invalid category.';
+        if (!in_array($sale_type, $allowed_sales))
+            $errors[] = 'Invalid sale type.';
+        if ($sale_type === 'best_offer' && empty($auction_end))
+            $errors[] = 'Auction end date is required for Best Offer items.';
 
         // Handle image upload
         $image_filename = null;
         if (!empty($_FILES['product_image']['name'])) {
             $allowed_types = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-            $file_type     = $_FILES['product_image']['type'];
-            $file_size     = $_FILES['product_image']['size'];
+            $file_type = $_FILES['product_image']['type'];
+            $file_size = $_FILES['product_image']['size'];
 
             if (!in_array($file_type, $allowed_types)) {
                 $errors[] = 'Only JPG, PNG, WebP, GIF images are allowed.';
             } elseif ($file_size > 5 * 1024 * 1024) {
                 $errors[] = 'Image must be under 5MB.';
             } else {
-                $ext            = pathinfo($_FILES['product_image']['name'], PATHINFO_EXTENSION);
+                $ext = pathinfo($_FILES['product_image']['name'], PATHINFO_EXTENSION);
                 $image_filename = 'product_' . uniqid() . '.' . $ext;
-                $dest           = __DIR__ . '/assets/uploads/' . $image_filename;
+                $dest = __DIR__ . '/assets/uploads/' . $image_filename;
                 if (!move_uploaded_file($_FILES['product_image']['tmp_name'], $dest)) {
                     $errors[] = 'Failed to upload image.';
                     $image_filename = null;
@@ -62,14 +67,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($errors)) {
             $as = $auction_start ?: null;
-            $ae = $auction_end   ?: null;
+            $ae = $auction_end ?: null;
             $stmt = $conn->prepare(
                 "INSERT INTO products (seller_id, name, description, defects, price, category, sale_type, image, auction_start, auction_end)
                  VALUES (?,?,?,?,?,?,?,?,?,?)"
             );
-            $stmt->bind_param('isssdsssss',
-                $_SESSION['user_id'], $name, $description, $defects,
-                $price, $category, $sale_type, $image_filename, $as, $ae
+            $stmt->bind_param(
+                'isssdsssss',
+                $_SESSION['user_id'],
+                $name,
+                $description,
+                $defects,
+                $price,
+                $category,
+                $sale_type,
+                $image_filename,
+                $as,
+                $ae
             );
             $stmt->execute();
             setFlash('success', "\"$name\" has been listed successfully.");
@@ -82,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // ─ Remove product ───────────────────────────────────────
     if ($action === 'delete_product') {
-        $product_id = (int)($_POST['product_id'] ?? 0);
+        $product_id = (int) ($_POST['product_id'] ?? 0);
         // Only allow seller to delete their own listings
         $stmt = $conn->prepare("DELETE FROM products WHERE id = ? AND seller_id = ?");
         $stmt->bind_param('ii', $product_id, $_SESSION['user_id']);
@@ -92,9 +106,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // ─ Send counter-offer (negotiation) ────────────────────
     if ($action === 'counter_offer') {
-        $neg_id      = (int)($_POST['neg_id']      ?? 0);
-        $counter     = (float)($_POST['counter']   ?? 0);
-        $product_id  = (int)($_POST['product_id']  ?? 0);
+        $neg_id = (int) ($_POST['neg_id'] ?? 0);
+        $counter = (float) ($_POST['counter'] ?? 0);
+        $product_id = (int) ($_POST['product_id'] ?? 0);
 
         if ($neg_id && $counter > 0) {
             $stmt = $conn->prepare("UPDATE negotiations SET seller_reply = ?, status = 'countered' WHERE id = ?");
@@ -107,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $neg_stmt->execute();
             $neg_row = $neg_stmt->get_result()->fetch_assoc();
             if ($neg_row) {
-                $msg  = 'The seller has countered with €' . number_format($counter, 2) . '. Check your negotiation thread.';
+                $msg = 'The seller has countered with €' . number_format($counter, 2) . '. Check your negotiation thread.';
                 $link = 'product.php?id=' . $product_id;
                 $stmt2 = $conn->prepare("INSERT INTO notifications (user_id, message, link) VALUES (?,?,?)");
                 $stmt2->bind_param('iss', $neg_row['buyer_id'], $msg, $link);
@@ -182,39 +196,38 @@ require_once 'templates/header.php';
                         </thead>
                         <tbody>
                             <?php foreach ($my_products as $p): ?>
-                            <tr>
-                                <td>
-                                    <a href="product.php?id=<?php echo (int)$p['id']; ?>">
-                                        <?php echo htmlspecialchars($p['name']); ?>
-                                    </a>
-                                </td>
-                                <td>
-                                    <span class="badge badge-<?php echo str_replace('_','-',$p['category']); ?>">
-                                        <?php echo getCategoryLabel($p['category']); ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge badge-<?php echo str_replace('_','-',$p['sale_type']); ?>">
-                                        <?php echo getSaleTypeLabel($p['sale_type']); ?>
-                                    </span>
-                                </td>
-                                <td><?php echo formatPrice($p['price']); ?></td>
-                                <td>
-                                    <?php if ($p['is_sold']): ?>
-                                        <span class="badge" style="background:var(--success);color:var(--white);">Sold</span>
-                                    <?php else: ?>
-                                        <span class="badge badge-buy-now">Available</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <form method="POST" style="display:inline;">
-                                        <input type="hidden" name="action"     value="delete_product">
-                                        <input type="hidden" name="product_id" value="<?php echo (int)$p['id']; ?>">
-                                        <button type="submit" class="btn btn-sm btn-danger"
-                                                data-confirm="Remove this listing?">Remove</button>
-                                    </form>
-                                </td>
-                            </tr>
+                                <tr>
+                                    <td>
+                                        <a href="product.php?id=<?php echo (int) $p['id']; ?>">
+                                            <?php echo htmlspecialchars($p['name']); ?>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-<?php echo str_replace('_', '-', $p['category']); ?>">
+                                            <?php echo getCategoryLabel($p['category']); ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-<?php echo str_replace('_', '-', $p['sale_type']); ?>">
+                                            <?php echo getSaleTypeLabel($p['sale_type']); ?>
+                                        </span>
+                                    </td>
+                                    <td><?php echo formatPrice($p['price']); ?></td>
+                                    <td>
+                                        <?php if ($p['is_sold']): ?>
+                                            <span class="badge" style="background:var(--success);color:var(--white);">Sold</span>
+                                        <?php else: ?>
+                                            <span class="badge badge-buy-now">Available</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <form method="POST" style="display:inline;">
+                                            <input type="hidden" name="action" value="delete_product">
+                                            <input type="hidden" name="product_id" value="<?php echo (int) $p['id']; ?>">
+                                            <button type="submit" class="btn btn-sm btn-danger" data-confirm="Remove this listing?">Remove</button>
+                                        </form>
+                                    </td>
+                                </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
@@ -228,49 +241,45 @@ require_once 'templates/header.php';
                 <div class="card card-body text-center text-muted">No pending offers.</div>
             <?php else: ?>
                 <?php foreach ($pending_negs as $neg): ?>
-                <div style="background:var(--white);border-radius:var(--radius-md);padding:20px;box-shadow:var(--shadow-sm);margin-bottom:16px;">
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
-                        <div>
-                            <div style="font-weight:700;"><?php echo htmlspecialchars($neg['product_name']); ?></div>
-                            <div class="text-small text-muted">
-                                Buyer: <strong>@<?php echo htmlspecialchars($neg['buyer_name']); ?></strong>
-                                · Round <?php echo (int)$neg['round']; ?>/5
-                                · <?php echo date('d M Y, H:i', strtotime($neg['created_at'])); ?>
+                    <div style="background:var(--white);border-radius:var(--radius-md);padding:20px;box-shadow:var(--shadow-sm);margin-bottom:16px;">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+                            <div>
+                                <div style="font-weight:700;"><?php echo htmlspecialchars($neg['product_name']); ?></div>
+                                <div class="text-small text-muted">
+                                    Buyer: <strong>@<?php echo htmlspecialchars($neg['buyer_name']); ?></strong>
+                                    · Round <?php echo (int) $neg['round']; ?>/5
+                                    · <?php echo date('d M Y, H:i', strtotime($neg['created_at'])); ?>
+                                </div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div class="text-small text-muted">Listed: <?php echo formatPrice($neg['listed_price']); ?></div>
+                                <div style="font-size:1.2rem;font-weight:700;color:var(--purple-600);">
+                                    Offer: <?php echo formatPrice($neg['buyer_offer']); ?>
+                                </div>
                             </div>
                         </div>
-                        <div style="text-align:right;">
-                            <div class="text-small text-muted">Listed: <?php echo formatPrice($neg['listed_price']); ?></div>
-                            <div style="font-size:1.2rem;font-weight:700;color:var(--purple-600);">
-                                Offer: <?php echo formatPrice($neg['buyer_offer']); ?>
-                            </div>
+
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                            <!-- Accept -->
+                            <form method="POST" style="display:inline;">
+                                <input type="hidden" name="action" value="accept_negotiation">
+                                <input type="hidden" name="neg_id" value="<?php echo (int) $neg['id']; ?>">
+                                <input type="hidden" name="product_id" value="<?php echo (int) $neg['product_id']; ?>">
+                                <button type="submit" class="btn btn-sm" style="background:var(--success);color:var(--white);" data-confirm="Accept offer of <?php echo formatPrice($neg['buyer_offer']); ?>?">
+                                    ✓ Accept
+                                </button>
+                            </form>
+
+                            <!-- Counter-offer -->
+                            <form method="POST" style="display:inline-flex;gap:8px;align-items:center;">
+                                <input type="hidden" name="action" value="counter_offer">
+                                <input type="hidden" name="neg_id" value="<?php echo (int) $neg['id']; ?>">
+                                <input type="hidden" name="product_id" value="<?php echo (int) $neg['product_id']; ?>">
+                                <input type="number" name="counter" class="form-control" style="width:120px;padding:7px 10px;font-size:0.85rem;" step="0.01" min="0.01" placeholder="€ counter" required>
+                                <button type="submit" class="btn btn-sm btn-secondary">Counter →</button>
+                            </form>
                         </div>
                     </div>
-
-                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                        <!-- Accept -->
-                        <form method="POST" style="display:inline;">
-                            <input type="hidden" name="action"     value="accept_negotiation">
-                            <input type="hidden" name="neg_id"     value="<?php echo (int)$neg['id']; ?>">
-                            <input type="hidden" name="product_id" value="<?php echo (int)$neg['product_id']; ?>">
-                            <button type="submit" class="btn btn-sm" style="background:var(--success);color:var(--white);"
-                                    data-confirm="Accept offer of <?php echo formatPrice($neg['buyer_offer']); ?>?">
-                                ✓ Accept
-                            </button>
-                        </form>
-
-                        <!-- Counter-offer -->
-                        <form method="POST" style="display:inline-flex;gap:8px;align-items:center;">
-                            <input type="hidden" name="action"     value="counter_offer">
-                            <input type="hidden" name="neg_id"     value="<?php echo (int)$neg['id']; ?>">
-                            <input type="hidden" name="product_id" value="<?php echo (int)$neg['product_id']; ?>">
-                            <input type="number" name="counter" class="form-control" style="width:120px;padding:7px 10px;font-size:0.85rem;"
-                                   step="0.01" min="0.01"
-                                   placeholder="€ counter"
-                                   required>
-                            <button type="submit" class="btn btn-sm btn-secondary">Counter →</button>
-                        </form>
-                    </div>
-                </div>
                 <?php endforeach; ?>
             <?php endif; ?>
 
@@ -286,20 +295,17 @@ require_once 'templates/header.php';
 
                     <div class="form-group">
                         <label class="form-label">Product Name</label>
-                        <input type="text" name="name" class="form-control"
-                               placeholder="e.g. Hand-Blown Glass Vase" required>
+                        <input type="text" name="name" class="form-control" placeholder="e.g. Hand-Blown Glass Vase" required>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control"
-                                  placeholder="Describe the item in detail…"></textarea>
+                        <textarea name="description" class="form-control" placeholder="Describe the item in detail…"></textarea>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Defects / Condition Notes <span class="text-muted">(optional)</span></label>
-                        <textarea name="defects" class="form-control" style="min-height:60px;"
-                                  placeholder="Any defects or special conditions…"></textarea>
+                        <textarea name="defects" class="form-control" style="min-height:60px;" placeholder="Any defects or special conditions…"></textarea>
                     </div>
 
                     <div class="form-row">
@@ -325,13 +331,12 @@ require_once 'templates/header.php';
 
                     <div class="form-group">
                         <label class="form-label">Price (€)</label>
-                        <input type="number" name="price" class="form-control"
-                               step="0.01" min="0.01" placeholder="0.00" required>
+                        <input type="number" name="price" class="form-control" step="0.01" min="0.01" placeholder="0.00" required>
                     </div>
 
                     <!-- Auction dates (shown only for best_offer) -->
                     <div id="auction_dates" style="display:none;">
-                        <div class="form-row">
+                        <div class="form-column">
                             <div class="form-group">
                                 <label class="form-label">Auction Start</label>
                                 <input type="datetime-local" name="auction_start" class="form-control">
@@ -345,11 +350,8 @@ require_once 'templates/header.php';
 
                     <div class="form-group">
                         <label class="form-label">Product Image <span class="text-muted">(JPG/PNG, max 5MB)</span></label>
-                        <input type="file" id="product_image" name="product_image" class="form-control"
-                               accept="image/*">
-                        <img id="image_preview" src="" alt="Preview"
-                             class="hidden"
-                             style="margin-top:10px;width:100%;border-radius:var(--radius-sm);max-height:160px;object-fit:cover;">
+                        <input type="file" id="product_image" name="product_image" class="form-control" accept="image/*">
+                        <img id="image_preview" src="" alt="Preview" class="hidden" style="margin-top:10px;width:100%;border-radius:var(--radius-sm);max-height:160px;object-fit:cover;">
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-full btn-lg">List Item for Sale</button>
@@ -364,4 +366,3 @@ require_once 'templates/header.php';
 $extra_scripts = ['assets/scripts/seller.js'];
 require_once 'templates/footer.php';
 ?>
-

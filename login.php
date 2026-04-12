@@ -75,7 +75,7 @@ $page_title = 'Log In';
         <div class="auth-card">
             <div class="auth-logo">
                 <a href="index.php" class="site-logo" style="justify-content:center;">
-                    <img src="http://localhost/omnes_mp/assets/images/OMNES_ICON_PNG.png" alt="Omnes Icon" class="logo-icon">
+                    <img src="assets/images/OMNES_ICON_PNG.png" alt="Omnes Icon" class="logo-icon">
                     <!-- <div class="logo-icon">🛒</div> -->
                     Omnes <span>Market</span>Place
                 </a>

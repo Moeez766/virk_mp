@@ -116,85 +116,60 @@ require_once 'templates/header.php';
             <!-- Member 1 -->
             <div class="team-card">
                 <div class="team-avatar">
-                    <img src="https://placehold.co/200x200/430e78/ffffff?text=FA" alt="AMINU Farouk Abdullahi">
+                    <img src="assets/images/FAROUKK.PNG" alt="AMINU Farouk Abdullahi">
                 </div>
                 <div class="team-info">
                     <h3 class="team-name">AMINU Farouk Abdullahi</h3>
                     <p class="team-position">Co-Founder &amp; Lead Developer</p>
                     <p class="team-qual">BSc Computer Science — Omnes Education, Paris</p>
-                    <p class="team-bio">
-                        Farouk architected the back-end infrastructure and database schema powering
-                        the platform. His focus on security and clean code set the foundation for
-                        every feature built since.
-                    </p>
                 </div>
             </div>
 
             <!-- Member 2 -->
             <div class="team-card">
                 <div class="team-avatar">
-                    <img src="https://placehold.co/200x200/5b189e/ffffff?text=MM" alt="VIRK Muhammad Moeez">
+                    <img src="assets/images/MOEEZ.PNG" alt="VIRK Muhammad Moeez">
                 </div>
                 <div class="team-info">
                     <h3 class="team-name">VIRK Muhammad Moeez</h3>
                     <p class="team-position">Co-Founder &amp; Product Manager</p>
                     <p class="team-qual">MSc Digital Business — Omnes Education, Paris</p>
-                    <p class="team-bio">
-                        Moeez drives the product roadmap and keeps the team aligned with user needs.
-                        He designed the three-mode purchasing system and oversees seller onboarding
-                        and community growth.
-                    </p>
                 </div>
             </div>
 
             <!-- Member 3 -->
             <div class="team-card">
                 <div class="team-avatar">
-                    <img src="https://placehold.co/200x200/7b2fbe/ffffff?text=MB" alt="BHAGIA Mohit">
+                    <img src="assets/images/MOHIT.PNG" alt="BHAGIA Mohit">
                 </div>
                 <div class="team-info">
                     <h3 class="team-name">BHAGIA Mohit</h3>
                     <p class="team-position">UI/UX Designer &amp; Front-End Developer</p>
                     <p class="team-qual">BA Digital Design — Omnes Education, Paris</p>
-                    <p class="team-bio">
-                        Mohit is responsible for every pixel you see on screen. He crafted the
-                        purple design system, built the responsive CSS, and led the mobile
-                        redesign launched in 2025.
-                    </p>
                 </div>
             </div>
 
             <!-- Member 4 -->
             <div class="team-card">
                 <div class="team-avatar">
-                    <img src="https://placehold.co/200x200/9d53d4/ffffff?text=AN" alt="ABDELGHANI Nour">
+                    <img src="assets/images/NOURR.PNG" alt="ABDELGHANI Nour">
                 </div>
                 <div class="team-info">
                     <h3 class="team-name">ABDELGHANI Nour</h3>
                     <p class="team-position">Operations Manager &amp; Branch Coordinator</p>
                     <p class="team-qual">BSc Business Administration — Omnes Education, Lyon</p>
-                    <p class="team-bio">
-                        Nour manages day-to-day operations and coordinates between all three
-                        branches. She built the seller verification process and handles
-                        disputes and customer support.
-                    </p>
                 </div>
             </div>
 
             <!-- Member 5 -->
             <div class="team-card">
                 <div class="team-avatar">
-                    <img src="https://placehold.co/200x200/c08de8/1a0533?text=NN" alt="NITIN Nitin">
+                    <img src="assets/images/NITIN.PNG" alt="NITIN Nitin">
                 </div>
                 <div class="team-info">
                     <h3 class="team-name">NITIN Nitin</h3>
                     <p class="team-position">Data Analyst &amp; QA Engineer</p>
                     <p class="team-qual">BSc Data Science — Omnes Education, Bordeaux</p>
-                    <p class="team-bio">
-                        Nitin keeps the platform running smoothly. He manages testing pipelines,
-                        monitors performance, and turns user behaviour data into actionable
-                        improvements for the team.
-                    </p>
                 </div>
             </div>
 

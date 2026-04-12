@@ -42,8 +42,7 @@ if (!isset($page_title))
 
             <!-- Logo -->
             <a href="index.php" class="site-logo">
-                <img src="http://localhost/omnes_mp/assets/images/OMNES_ICON_PNG.png" alt="Omnes Icon" class="logo-icon">
-                <!-- <div class="logo-icon">🛒</div> -->
+                <img src="assets/images/OMNES_ICON_PNG.png" alt="Omnes Icon" class="logo-icon">
                 Omnes <span>Market</span>Place
             </a>
 
