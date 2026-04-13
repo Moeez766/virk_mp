@@ -4,8 +4,11 @@ require_once 'includes/sessions.php';
 require_once 'includes/db.php';
 require_once 'includes/functions.php';
 
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-if (!$id) { header("Location: products.php"); exit(); }
+$id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+if (!$id) {
+    header("Location: products.php");
+    exit();
+}
 
 $product = getProductById($conn, $id);
 if (!$product) {
@@ -40,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isLoggedIn()) {
 
     // ─ Place a bid (Best Offer) ─────────────────────────────
     if ($action === 'place_bid' && $product['sale_type'] === 'best_offer') {
-        $max_bid = (float)($_POST['max_bid'] ?? 0);
+        $max_bid = (float) ($_POST['max_bid'] ?? 0);
 
         // Check auction is still open
         $now = new DateTime();
@@ -55,8 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isLoggedIn()) {
             $stmt = $conn->prepare("SELECT MAX(bid_amount) AS top FROM bids WHERE product_id = ?");
             $stmt->bind_param('i', $id);
             $stmt->execute();
-            $top_row   = $stmt->get_result()->fetch_assoc();
-            $top_bid   = (float)($top_row['top'] ?? 0);
+            $top_row = $stmt->get_result()->fetch_assoc();
+            $top_bid = (float) ($top_row['top'] ?? 0);
             $bid_amount = $top_bid > 0 ? $top_bid + 1 : $product['price'];
 
             if ($max_bid <= $top_bid) {
@@ -67,9 +70,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isLoggedIn()) {
                 $stmt2->execute();
 
                 // Notify seller
-                $msg  = 'A new bid of ' . formatPrice($bid_amount) . ' has been placed on "' . $product['name'] . '".';
+                $msg = 'A new bid of ' . formatPrice($bid_amount) . ' has been placed on "' . $product['name'] . '".';
                 $stmt3 = $conn->prepare("INSERT INTO notifications (user_id, message, link) VALUES (?,?,?)");
-                $link  = 'product.php?id=' . $id;
+                $link = 'product.php?id=' . $id;
                 $stmt3->bind_param('iss', $product['seller_id'], $msg, $link);
                 $stmt3->execute();
 
@@ -82,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isLoggedIn()) {
 
     // ─ Make a negotiation offer ─────────────────────────────
     if ($action === 'negotiate' && $product['sale_type'] === 'negotiation') {
-        $offer = (float)($_POST['offer_amount'] ?? 0);
+        $offer = (float) ($_POST['offer_amount'] ?? 0);
 
         if ($offer <= 0) {
             setFlash('danger', 'Please enter a valid offer amount.');
@@ -92,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isLoggedIn()) {
             $stmt->bind_param('ii', $id, $_SESSION['user_id']);
             $stmt->execute();
             $cnt_row = $stmt->get_result()->fetch_assoc();
-            $rounds_used = (int)$cnt_row['cnt'];
+            $rounds_used = (int) $cnt_row['cnt'];
 
             if ($rounds_used >= 5) {
                 setFlash('danger', 'You have reached the maximum of 5 negotiation rounds for this item.');
@@ -103,9 +106,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isLoggedIn()) {
                 $stmt2->execute();
 
                 // Notify seller
-                $msg  = $_SESSION['username'] . ' made an offer of ' . formatPrice($offer) . ' on "' . $product['name'] . '". Round ' . $round . '/5.';
+                $msg = $_SESSION['username'] . ' made an offer of ' . formatPrice($offer) . ' on "' . $product['name'] . '". Round ' . $round . '/5.';
                 $stmt3 = $conn->prepare("INSERT INTO notifications (user_id, message, link) VALUES (?,?,?)");
-                $link  = 'seller.php?action=negotiate&product_id=' . $id;
+                $link = 'seller.php?action=negotiate&product_id=' . $id;
                 $stmt3->bind_param('iss', $product['seller_id'], $msg, $link);
                 $stmt3->execute();
 
@@ -118,31 +121,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isLoggedIn()) {
 }
 
 // Load additional data
-$highest_bid  = null;
-$bid_count    = 0;
-$my_rounds    = 0;
+$highest_bid = null;
+$bid_count = 0;
+$my_rounds = 0;
 $negotiations = [];
 
 if ($product['sale_type'] === 'best_offer') {
     $stmt = $conn->prepare("SELECT MAX(bid_amount) AS top, COUNT(*) AS cnt FROM bids WHERE product_id = ?");
     $stmt->bind_param('i', $id);
     $stmt->execute();
-    $bid_data    = $stmt->get_result()->fetch_assoc();
+    $bid_data = $stmt->get_result()->fetch_assoc();
     $highest_bid = $bid_data['top'];
-    $bid_count   = (int)$bid_data['cnt'];
+    $bid_count = (int) $bid_data['cnt'];
 }
 
 if ($product['sale_type'] === 'negotiation' && isLoggedIn()) {
     $stmt = $conn->prepare("SELECT COUNT(*) AS cnt FROM negotiations WHERE product_id = ? AND buyer_id = ?");
     $stmt->bind_param('ii', $id, $_SESSION['user_id']);
     $stmt->execute();
-    $my_rounds = (int)$stmt->get_result()->fetch_assoc()['cnt'];
+    $my_rounds = (int) $stmt->get_result()->fetch_assoc()['cnt'];
     $negotiations = getNegotiations($conn, $id);
 }
 
 $img = !empty($product['image']) ? 'assets/uploads/' . htmlspecialchars($product['image']) : null;
-$placeholder_icons = ['rare'=>'💎','high_end'=>'🪑','regular'=>'🛍️'];
+$placeholder_icons = ['rare' => '💎', 'high_end' => '🪑', 'regular' => '🛍️'];
 $icon = $placeholder_icons[$product['category']] ?? '📦';
+
+
+
 
 require_once 'templates/header.php';
 ?>
@@ -171,12 +177,12 @@ require_once 'templates/header.php';
             </div>
 
             <?php if ($product['video_url']): ?>
-            <div style="margin-top:20px;">
-                <h4 style="margin-bottom:12px;">Product Video</h4>
-                <video controls style="width:100%;border-radius:var(--radius-md);">
-                    <source src="<?php echo htmlspecialchars($product['video_url']); ?>">
-                </video>
-            </div>
+                <div style="margin-top:20px;">
+                    <h4 style="margin-bottom:12px;">Product Video</h4>
+                    <video controls style="width:100%;border-radius:var(--radius-md);">
+                        <source src="<?php echo htmlspecialchars($product['video_url']); ?>">
+                    </video>
+                </div>
             <?php endif; ?>
 
             <!-- Description -->
@@ -190,10 +196,10 @@ require_once 'templates/header.php';
                 <?php endif; ?>
 
                 <div style="margin-top:20px;display:flex;gap:8px;flex-wrap:wrap;">
-                    <span class="badge badge-<?php echo str_replace('_','-',$product['category']); ?>">
+                    <span class="badge badge-<?php echo str_replace('_', '-', $product['category']); ?>">
                         <?php echo getCategoryLabel($product['category']); ?>
                     </span>
-                    <span class="badge badge-<?php echo str_replace('_','-',$product['sale_type']); ?>">
+                    <span class="badge badge-<?php echo str_replace('_', '-', $product['sale_type']); ?>">
                         <?php echo getSaleTypeLabel($product['sale_type']); ?>
                     </span>
                 </div>
@@ -207,34 +213,35 @@ require_once 'templates/header.php';
 
             <!-- Negotiation thread (if applicable) -->
             <?php if ($product['sale_type'] === 'negotiation' && isLoggedIn() && !empty($negotiations)): ?>
-            <div style="background:var(--white);border-radius:var(--radius-md);padding:28px;margin-top:24px;box-shadow:var(--shadow-sm);">
-                <h3 style="margin-bottom:16px;">Negotiation History (<?php echo $my_rounds; ?>/5 rounds used)</h3>
-                <div class="negotiation-thread">
-                    <?php foreach (array_reverse($negotiations) as $neg):
-                        if ((int)$neg['buyer_id'] !== (int)$_SESSION['user_id']) continue;
-                    ?>
-                        <div class="msg-bubble msg-buyer">
-                            <div class="msg-label">Your Offer — Round <?php echo (int)$neg['round']; ?></div>
-                            <?php echo formatPrice($neg['buyer_offer']); ?>
-                            <div style="font-size:0.7rem;opacity:0.7;margin-top:4px;"><?php echo date('d M Y, H:i', strtotime($neg['created_at'])); ?></div>
-                        </div>
-                        <?php if ($neg['seller_reply']): ?>
-                        <div class="msg-bubble msg-seller">
-                            <div class="msg-label">Seller's Counter-Offer</div>
-                            <?php echo formatPrice($neg['seller_reply']); ?>
-                            <span class="badge badge-<?php echo $neg['status']; ?>" style="margin-left:6px;">
-                                <?php echo ucfirst($neg['status']); ?>
-                            </span>
-                        </div>
-                        <?php elseif ($neg['status'] === 'pending'): ?>
-                        <div class="msg-bubble msg-seller">
-                            <div class="msg-label">Seller</div>
-                            <em style="color:var(--gray-400);">Awaiting seller response…</em>
-                        </div>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
+                <div style="background:var(--white);border-radius:var(--radius-md);padding:28px;margin-top:24px;box-shadow:var(--shadow-sm);">
+                    <h3 style="margin-bottom:16px;">Negotiation History (<?php echo $my_rounds; ?>/5 rounds used)</h3>
+                    <div class="negotiation-thread">
+                        <?php foreach (array_reverse($negotiations) as $neg):
+                            if ((int) $neg['buyer_id'] !== (int) $_SESSION['user_id'])
+                                continue;
+                            ?>
+                            <div class="msg-bubble msg-buyer">
+                                <div class="msg-label">Your Offer — Round <?php echo (int) $neg['round']; ?></div>
+                                <?php echo formatPrice($neg['buyer_offer']); ?>
+                                <div style="font-size:0.7rem;opacity:0.7;margin-top:4px;"><?php echo date('d M Y, H:i', strtotime($neg['created_at'])); ?></div>
+                            </div>
+                            <?php if ($neg['seller_reply']): ?>
+                                <div class="msg-bubble msg-seller">
+                                    <div class="msg-label">Seller's Counter-Offer</div>
+                                    <?php echo formatPrice($neg['seller_reply']); ?>
+                                    <span class="badge badge-<?php echo $neg['status']; ?>" style="margin-left:6px;">
+                                        <?php echo ucfirst($neg['status']); ?>
+                                    </span>
+                                </div>
+                            <?php elseif ($neg['status'] === 'pending'): ?>
+                                <div class="msg-bubble msg-seller">
+                                    <div class="msg-label">Seller</div>
+                                    <em style="color:var(--gray-400);">Awaiting seller response…</em>
+                                </div>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
-            </div>
             <?php endif; ?>
         </div>
 
@@ -245,10 +252,10 @@ require_once 'templates/header.php';
             <div class="detail-price"><?php echo formatPrice($product['price']); ?></div>
 
             <div class="detail-meta">
-                <span class="badge badge-<?php echo str_replace('_','-',$product['category']); ?>">
+                <span class="badge badge-<?php echo str_replace('_', '-', $product['category']); ?>">
                     <?php echo getCategoryLabel($product['category']); ?>
                 </span>
-                <span class="badge badge-<?php echo str_replace('_','-',$product['sale_type']); ?>">
+                <span class="badge badge-<?php echo str_replace('_', '-', $product['sale_type']); ?>">
                     <?php echo getSaleTypeLabel($product['sale_type']); ?>
                 </span>
                 <?php if ($product['is_sold']): ?>
@@ -292,13 +299,25 @@ require_once 'templates/header.php';
 
                     <?php if ($product['auction_end']): ?>
                         <div class="auction-timer" data-end="<?php echo htmlspecialchars($product['auction_end']); ?>">
-                            <div class="timer-segment"><div class="timer-value t-days">--</div><div class="timer-label">Days</div></div>
+                            <div class="timer-segment">
+                                <div class="timer-value t-days">--</div>
+                                <div class="timer-label">Days</div>
+                            </div>
                             <div class="timer-sep">:</div>
-                            <div class="timer-segment"><div class="timer-value t-hours">--</div><div class="timer-label">Hrs</div></div>
+                            <div class="timer-segment">
+                                <div class="timer-value t-hours">--</div>
+                                <div class="timer-label">Hrs</div>
+                            </div>
                             <div class="timer-sep">:</div>
-                            <div class="timer-segment"><div class="timer-value t-mins">--</div><div class="timer-label">Min</div></div>
+                            <div class="timer-segment">
+                                <div class="timer-value t-mins">--</div>
+                                <div class="timer-label">Min</div>
+                            </div>
                             <div class="timer-sep">:</div>
-                            <div class="timer-segment"><div class="timer-value t-secs">--</div><div class="timer-label">Sec</div></div>
+                            <div class="timer-segment">
+                                <div class="timer-value t-secs">--</div>
+                                <div class="timer-label">Sec</div>
+                            </div>
                         </div>
                     <?php endif; ?>
 
@@ -314,20 +333,17 @@ require_once 'templates/header.php';
                     </div>
 
                     <?php if ($auction_open): ?>
-                    <form method="POST" id="bid-form"
-                          data-current-top="<?php echo (float)($highest_bid ?? $product['price']); ?>">
-                        <input type="hidden" name="action" value="place_bid">
-                        <div class="form-group">
-                            <label class="form-label" for="max_bid">Your Maximum Bid (€)</label>
-                            <input type="number" id="max_bid" name="max_bid" class="form-control"
-                                   step="0.01" min="<?php echo ($highest_bid ?? $product['price']) + 0.01; ?>"
-                                   placeholder="e.g. <?php echo (float)($highest_bid ?? $product['price']) + 100; ?>">
-                            <p class="text-small text-muted" style="margin-top:4px;">
-                                We'll automatically bid on your behalf up to this amount.
-                            </p>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-full">Place Bid</button>
-                    </form>
+                        <form method="POST" id="bid-form" data-current-top="<?php echo (float) ($highest_bid ?? $product['price']); ?>">
+                            <input type="hidden" name="action" value="place_bid">
+                            <div class="form-group">
+                                <label class="form-label" for="max_bid">Your Maximum Bid (€)</label>
+                                <input type="number" id="max_bid" name="max_bid" class="form-control" step="0.01" min="<?php echo ($highest_bid ?? $product['price']) + 0.01; ?>" placeholder="e.g. <?php echo (float) ($highest_bid ?? $product['price']) + 100; ?>">
+                                <p class="text-small text-muted" style="margin-top:4px;">
+                                    We'll automatically bid on your behalf up to this amount.
+                                </p>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-full">Place Bid</button>
+                        </form>
                     <?php else: ?>
                         <div class="alert alert-warning mb-0">This auction has ended.</div>
                     <?php endif; ?>
@@ -348,32 +364,29 @@ require_once 'templates/header.php';
                     <?php if ($my_rounds >= 5): ?>
                         <div class="alert alert-warning mb-0">You have used all 5 negotiation rounds for this item.</div>
                     <?php else: ?>
-                    <form method="POST" id="negotiate-form"
-                          data-listed-price="<?php echo (float)$product['price']; ?>">
-                        <input type="hidden" name="action" value="negotiate">
-                        <div class="form-group">
-                            <label class="form-label" for="offer_amount">Your Offer (€)</label>
-                            <input type="number" id="offer_amount" name="offer_amount" class="form-control"
-                                   step="0.01" min="1"
-                                   placeholder="e.g. <?php echo round($product['price'] * 0.8, 0); ?>">
-                        </div>
-                        <div style="margin-bottom:16px;">
-                            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.85rem;color:var(--gray-600);">
-                                <input type="checkbox" required style="margin-top:3px;flex-shrink:0;">
-                                I understand that if the seller accepts my offer, I am legally obligated to complete the purchase.
-                            </label>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-full">Send Offer — Round <?php echo $my_rounds + 1; ?>/5</button>
-                    </form>
+                        <form method="POST" id="negotiate-form" data-listed-price="<?php echo (float) $product['price']; ?>">
+                            <input type="hidden" name="action" value="negotiate">
+                            <div class="form-group">
+                                <label class="form-label" for="offer_amount">Your Offer (€)</label>
+                                <input type="number" id="offer_amount" name="offer_amount" class="form-control" step="0.01" min="1" placeholder="e.g. <?php echo round($product['price'] * 0.8, 0); ?>">
+                            </div>
+                            <div style="margin-bottom:16px;">
+                                <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.85rem;color:var(--gray-600);">
+                                    <input type="checkbox" required style="margin-top:3px;flex-shrink:0;">
+                                    I understand that if the seller accepts my offer, I am legally obligated to complete the purchase.
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-full">Send Offer — Round <?php echo $my_rounds + 1; ?>/5</button>
+                        </form>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
 
             <!-- Seller info -->
             <?php if ($product['seller_name']): ?>
-            <div style="margin-top:16px;padding:16px;background:var(--gray-100);border-radius:var(--radius-sm);font-size:0.85rem;">
-                🏪 Sold by <strong><?php echo htmlspecialchars($product['seller_name']); ?></strong>
-            </div>
+                <div style="margin-top:16px;padding:16px;background:var(--gray-100);border-radius:var(--radius-sm);font-size:0.85rem;">
+                    🏪 Sold by <strong><?php echo htmlspecialchars($product['seller_name']); ?></strong>
+                </div>
             <?php endif; ?>
 
         </div><!-- /.product-detail-side -->

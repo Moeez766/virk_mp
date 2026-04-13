@@ -144,13 +144,12 @@ $stmt->execute();
 $my_products = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 // ── Fetch pending negotiations for seller's items ────────────
-$negs_sql = "SELECT n.*, p.name AS product_name, p.price AS listed_price, p.seller_id,
-                    u.username AS buyer_name
-             FROM negotiations n
-             JOIN products p ON n.product_id = p.id
-             JOIN users u ON n.buyer_id = u.id
-             WHERE p.seller_id = ? AND n.status = 'pending'
-             ORDER BY n.created_at DESC";
+$negs_sql = "SELECT n.*, p.name AS product_name, p.price AS listed_price, p.seller_id, u.username AS buyer_name
+            FROM negotiations n
+            JOIN products p ON n.product_id = p.id
+            JOIN users u ON n.buyer_id = u.id
+            WHERE p.seller_id = ? AND n.status = 'pending'
+            ORDER BY n.created_at DESC";
 $stmt2 = $conn->prepare($negs_sql);
 $stmt2->bind_param('i', $_SESSION['user_id']);
 $stmt2->execute();

@@ -8,7 +8,7 @@ requireLogin();
 $page_title = 'Notifications';
 
 // Mark all as read
-$conn->query("UPDATE notifications SET is_read = 1 WHERE user_id = " . (int)$_SESSION['user_id']);
+$conn->query("UPDATE notifications SET is_read = 1 WHERE user_id = " . (int) $_SESSION['user_id']);
 
 // Fetch all notifications
 $stmt = $conn->prepare("SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC");
@@ -19,19 +19,21 @@ $notifs = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 // Handle save notification preference
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_pref') {
-    $keyword   = sanitize($_POST['keyword']   ?? '');
-    $category  = sanitize($_POST['category']  ?? '');
+    $keyword = sanitize($_POST['keyword'] ?? '');
+    $category = sanitize($_POST['category'] ?? '');
     $sale_type = sanitize($_POST['sale_type'] ?? '');
-    $max_price = (float)($_POST['max_price'] ?? 0);
+    $max_price = (float) ($_POST['max_price'] ?? 0);
 
-    $allowed_cats  = ['', 'rare', 'high_end', 'regular'];
+    $allowed_cats = ['', 'rare', 'high_end', 'regular'];
     $allowed_sales = ['', 'buy_now', 'negotiation', 'best_offer'];
-    if (!in_array($category,  $allowed_cats))  $category  = '';
-    if (!in_array($sale_type, $allowed_sales)) $sale_type = '';
+    if (!in_array($category, $allowed_cats))
+        $category = '';
+    if (!in_array($sale_type, $allowed_sales))
+        $sale_type = '';
 
-    $cat_val  = $category  ?: null;
+    $cat_val = $category ?: null;
     $sale_val = $sale_type ?: null;
-    $max_val  = $max_price > 0 ? $max_price : null;
+    $max_val = $max_price > 0 ? $max_price : null;
 
     $stmt2 = $conn->prepare(
         "INSERT INTO notification_prefs (user_id, keyword, category, max_price, sale_type) VALUES (?,?,?,?,?)"
@@ -73,18 +75,18 @@ require_once 'templates/header.php';
                 </div>
             <?php else: ?>
                 <?php foreach ($notifs as $n): ?>
-                <div style="display:flex;gap:14px;align-items:flex-start;background:var(--white);padding:18px 20px;border-radius:var(--radius-md);box-shadow:var(--shadow-sm);margin-bottom:12px;">
-                    <div style="width:40px;height:40px;border-radius:50%;background:var(--purple-100);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;">
-                        🔔
+                    <div style="display:flex;gap:14px;align-items:flex-start;background:var(--white);padding:18px 20px;border-radius:var(--radius-md);box-shadow:var(--shadow-sm);margin-bottom:12px;">
+                        <div style="width:40px;height:40px;border-radius:50%;background:var(--purple-100);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;">
+                            🔔
+                        </div>
+                        <div style="flex:1;">
+                            <p style="margin-bottom:4px;font-size:0.9rem;"><?php echo htmlspecialchars($n['message']); ?></p>
+                            <div class="text-small text-muted"><?php echo date('d M Y, H:i', strtotime($n['created_at'])); ?></div>
+                        </div>
+                        <?php if ($n['link']): ?>
+                            <a href="<?php echo htmlspecialchars($n['link']); ?>" class="btn btn-sm btn-secondary">View</a>
+                        <?php endif; ?>
                     </div>
-                    <div style="flex:1;">
-                        <p style="margin-bottom:4px;font-size:0.9rem;"><?php echo htmlspecialchars($n['message']); ?></p>
-                        <div class="text-small text-muted"><?php echo date('d M Y, H:i', strtotime($n['created_at'])); ?></div>
-                    </div>
-                    <?php if ($n['link']): ?>
-                        <a href="<?php echo htmlspecialchars($n['link']); ?>" class="btn btn-sm btn-secondary">View</a>
-                    <?php endif; ?>
-                </div>
                 <?php endforeach; ?>
             <?php endif; ?>
         </div>
@@ -127,8 +129,7 @@ require_once 'templates/header.php';
 
                     <div class="form-group">
                         <label class="form-label">Max Price (€)</label>
-                        <input type="number" name="max_price" class="form-control"
-                               step="0.01" min="0" placeholder="Leave blank for any price">
+                        <input type="number" name="max_price" class="form-control" step="0.01" min="0" placeholder="Leave blank for any price">
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-full">Save Alert</button>
@@ -137,29 +138,29 @@ require_once 'templates/header.php';
 
             <!-- Existing preferences -->
             <?php if (!empty($prefs)): ?>
-            <div class="card card-body">
-                <h4 style="margin-bottom:16px;">Your Active Alerts</h4>
-                <?php foreach ($prefs as $pref): ?>
-                <div style="padding:10px 0;border-bottom:1px solid var(--gray-100);font-size:0.85rem;">
-                    <?php if ($pref['keyword']): ?>
-                        <span>🔍 "<?php echo htmlspecialchars($pref['keyword']); ?>"</span>
-                    <?php endif; ?>
-                    <?php if ($pref['category']): ?>
-                        <span class="badge badge-<?php echo str_replace('_','-',$pref['category']); ?>" style="margin-left:4px;">
-                            <?php echo getCategoryLabel($pref['category']); ?>
-                        </span>
-                    <?php endif; ?>
-                    <?php if ($pref['sale_type']): ?>
-                        <span class="badge badge-<?php echo str_replace('_','-',$pref['sale_type']); ?>" style="margin-left:4px;">
-                            <?php echo getSaleTypeLabel($pref['sale_type']); ?>
-                        </span>
-                    <?php endif; ?>
-                    <?php if ($pref['max_price']): ?>
-                        <span class="text-muted"> · max <?php echo formatPrice($pref['max_price']); ?></span>
-                    <?php endif; ?>
+                <div class="card card-body">
+                    <h4 style="margin-bottom:16px;">Your Active Alerts</h4>
+                    <?php foreach ($prefs as $pref): ?>
+                        <div style="padding:10px 0;border-bottom:1px solid var(--gray-100);font-size:0.85rem;">
+                            <?php if ($pref['keyword']): ?>
+                                <span>🔍 "<?php echo htmlspecialchars($pref['keyword']); ?>"</span>
+                            <?php endif; ?>
+                            <?php if ($pref['category']): ?>
+                                <span class="badge badge-<?php echo str_replace('_', '-', $pref['category']); ?>" style="margin-left:4px;">
+                                    <?php echo getCategoryLabel($pref['category']); ?>
+                                </span>
+                            <?php endif; ?>
+                            <?php if ($pref['sale_type']): ?>
+                                <span class="badge badge-<?php echo str_replace('_', '-', $pref['sale_type']); ?>" style="margin-left:4px;">
+                                    <?php echo getSaleTypeLabel($pref['sale_type']); ?>
+                                </span>
+                            <?php endif; ?>
+                            <?php if ($pref['max_price']): ?>
+                                <span class="text-muted"> · max <?php echo formatPrice($pref['max_price']); ?></span>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
-                <?php endforeach; ?>
-            </div>
             <?php endif; ?>
         </div>
 

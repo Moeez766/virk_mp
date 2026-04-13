@@ -7,7 +7,7 @@ require_once 'includes/functions.php';
 requireLogin();
 $page_title = 'Checkout';
 
-$items    = getCartItems($conn, $_SESSION['user_id']);
+$items = getCartItems($conn, $_SESSION['user_id']);
 if (empty($items)) {
     setFlash('info', 'Your cart is empty.');
     header("Location: cart.php");
@@ -26,34 +26,39 @@ $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Collect delivery info
     $delivery = [
-        'first_name'   => sanitize($_POST['first_name']   ?? ''),
-        'last_name'    => sanitize($_POST['last_name']    ?? ''),
-        'address1'     => sanitize($_POST['address1']     ?? ''),
-        'address2'     => sanitize($_POST['address2']     ?? ''),
-        'city'         => sanitize($_POST['city']         ?? ''),
-        'postal_code'  => sanitize($_POST['postal_code']  ?? ''),
-        'country'      => sanitize($_POST['country']      ?? ''),
-        'phone'        => sanitize($_POST['phone']        ?? ''),
+        'first_name' => sanitize($_POST['first_name'] ?? ''),
+        'last_name' => sanitize($_POST['last_name'] ?? ''),
+        'address1' => sanitize($_POST['address1'] ?? ''),
+        'address2' => sanitize($_POST['address2'] ?? ''),
+        'city' => sanitize($_POST['city'] ?? ''),
+        'postal_code' => sanitize($_POST['postal_code'] ?? ''),
+        'country' => sanitize($_POST['country'] ?? ''),
+        'phone' => sanitize($_POST['phone'] ?? ''),
     ];
     $payment = [
-        'type'        => sanitize($_POST['card_type']    ?? ''),
-        'card_number' => sanitize($_POST['card_number']  ?? ''),
-        'card_name'   => sanitize($_POST['card_name']    ?? ''),
-        'expiry'      => sanitize($_POST['expiry']       ?? ''),
-        'cvv'         => sanitize($_POST['cvv']          ?? ''),
+        'type' => sanitize($_POST['card_type'] ?? ''),
+        'card_number' => sanitize($_POST['card_number'] ?? ''),
+        'card_name' => sanitize($_POST['card_name'] ?? ''),
+        'expiry' => sanitize($_POST['expiry'] ?? ''),
+        'cvv' => sanitize($_POST['cvv'] ?? ''),
     ];
 
     // Basic validation
-    foreach (['first_name','last_name','address1','city','postal_code','country'] as $field) {
+    foreach (['first_name', 'last_name', 'address1', 'city', 'postal_code', 'country'] as $field) {
         if (empty($delivery[$field])) {
-            $errors[] = ucwords(str_replace('_',' ',$field)) . ' is required.';
+            $errors[] = ucwords(str_replace('_', ' ', $field)) . ' is required.';
         }
     }
-    if (empty($payment['type']))        $errors[] = 'Please select a payment method.';
-    if (strlen(preg_replace('/\s/','',$payment['card_number'])) < 12) $errors[] = 'Please enter a valid card number.';
-    if (empty($payment['card_name']))   $errors[] = 'Name on card is required.';
-    if (empty($payment['expiry']))      $errors[] = 'Expiry date is required.';
-    if (strlen($payment['cvv']) < 3)    $errors[] = 'CVV must be 3-4 digits.';
+    if (empty($payment['type']))
+        $errors[] = 'Please select a payment method.';
+    if (strlen(preg_replace('/\s/', '', $payment['card_number'])) < 12)
+        $errors[] = 'Please enter a valid card number.';
+    if (empty($payment['card_name']))
+        $errors[] = 'Name on card is required.';
+    if (empty($payment['expiry']))
+        $errors[] = 'Expiry date is required.';
+    if (strlen($payment['cvv']) < 3)
+        $errors[] = 'CVV must be 3-4 digits.';
 
     // Simulate payment validation against DB (project requirement)
     // In a real system this would call a payment gateway
@@ -64,13 +69,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Insert order
                 $stmt2 = $conn->prepare(
                     "INSERT INTO orders (buyer_id, product_id, final_price, purchase_type, payment_method, card_last4)
-                     VALUES (?,?,?,?,?,?)"
+                    VALUES (?,?,?,?,?,?)"
                 );
-                $last4        = substr(preg_replace('/\s/','',$payment['card_number']), -4);
+                $last4 = substr(preg_replace('/\s/', '', $payment['card_number']), -4);
                 $purchase_type = $item['sale_type'];
-                $card_type    = strtolower($payment['type']);
-                $stmt2->bind_param('iidsss', $_SESSION['user_id'], $item['product_id'],
-                                   $item['price'], $purchase_type, $card_type, $last4);
+                $card_type = strtolower($payment['type']);
+                $stmt2->bind_param(
+                    'iidsss',
+                    $_SESSION['user_id'],
+                    $item['product_id'],
+                    $item['price'],
+                    $purchase_type,
+                    $card_type,
+                    $last4
+                );
                 $stmt2->execute();
 
                 // Mark product as sold
@@ -125,53 +137,39 @@ require_once 'templates/header.php';
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">First Name</label>
-                            <input type="text" name="first_name" class="form-control"
-                                   value="<?php echo htmlspecialchars($buyer['first_name'] ?? ''); ?>" required>
+                            <input type="text" name="first_name" class="form-control" value="<?php echo htmlspecialchars($buyer['first_name'] ?? ''); ?>" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Last Name</label>
-                            <input type="text" name="last_name" class="form-control"
-                                   value="<?php echo htmlspecialchars($buyer['last_name'] ?? ''); ?>" required>
+                            <input type="text" name="last_name" class="form-control" value="<?php echo htmlspecialchars($buyer['last_name'] ?? ''); ?>" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Address Line 1</label>
-                        <input type="text" name="address1" class="form-control"
-                               value="<?php echo htmlspecialchars($buyer['address_line1'] ?? ''); ?>"
-                               placeholder="12 Rue de la Paix" required>
+                        <input type="text" name="address1" class="form-control" value="<?php echo htmlspecialchars($buyer['address_line1'] ?? ''); ?>" placeholder="12 Rue de la Paix" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Address Line 2 <span class="text-muted">(optional)</span></label>
-                        <input type="text" name="address2" class="form-control"
-                               value="<?php echo htmlspecialchars($buyer['address_line2'] ?? ''); ?>"
-                               placeholder="Apt 3B">
+                        <input type="text" name="address2" class="form-control" value="<?php echo htmlspecialchars($buyer['address_line2'] ?? ''); ?>" placeholder="Apt 3B">
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">City</label>
-                            <input type="text" name="city" class="form-control"
-                                   value="<?php echo htmlspecialchars($buyer['city'] ?? ''); ?>"
-                                   placeholder="Paris" required>
+                            <input type="text" name="city" class="form-control" value="<?php echo htmlspecialchars($buyer['city'] ?? ''); ?>" placeholder="Paris" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Postal Code</label>
-                            <input type="text" name="postal_code" class="form-control"
-                                   value="<?php echo htmlspecialchars($buyer['postal_code'] ?? ''); ?>"
-                                   placeholder="75001" required>
+                            <input type="text" name="postal_code" class="form-control" value="<?php echo htmlspecialchars($buyer['postal_code'] ?? ''); ?>" placeholder="75001" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Country</label>
-                            <input type="text" name="country" class="form-control"
-                                   value="<?php echo htmlspecialchars($buyer['country'] ?? 'France'); ?>"
-                                   placeholder="France" required>
+                            <input type="text" name="country" class="form-control" value="<?php echo htmlspecialchars($buyer['country'] ?? 'France'); ?>" placeholder="France" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Phone Number</label>
-                            <input type="tel" name="phone" class="form-control"
-                                   value="<?php echo htmlspecialchars($buyer['phone'] ?? ''); ?>"
-                                   placeholder="+33 6 12 34 56 78">
+                            <input type="tel" name="phone" class="form-control" value="<?php echo htmlspecialchars($buyer['phone'] ?? ''); ?>" placeholder="+33 6 12 34 56 78">
                         </div>
                     </div>
                 </div>
@@ -196,28 +194,22 @@ require_once 'templates/header.php';
 
                     <div class="form-group">
                         <label class="form-label">Card Number</label>
-                        <input type="text" name="card_number" class="form-control"
-                               placeholder="•••• •••• •••• ••••"
-                               maxlength="19" required>
+                        <input type="text" name="card_number" class="form-control" placeholder="•••• •••• •••• ••••" maxlength="19" required>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Name on Card</label>
-                        <input type="text" name="card_name" class="form-control"
-                               value="<?php echo htmlspecialchars(($buyer['first_name'] ?? '') . ' ' . ($buyer['last_name'] ?? '')); ?>"
-                               placeholder="MARIE DUPONT" required>
+                        <input type="text" name="card_name" class="form-control" value="<?php echo htmlspecialchars(($buyer['first_name'] ?? '') . ' ' . ($buyer['last_name'] ?? '')); ?>" placeholder="MARIE DUPONT" required>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Expiry Date</label>
-                            <input type="text" name="expiry" class="form-control"
-                                   placeholder="MM/YY" maxlength="5" required>
+                            <input type="text" name="expiry" class="form-control" placeholder="MM/YY" maxlength="5" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">CVV / Security Code</label>
-                            <input type="text" name="cvv" class="form-control"
-                                   placeholder="•••" maxlength="4" required>
+                            <input type="text" name="cvv" class="form-control" placeholder="•••" maxlength="4" required>
                         </div>
                     </div>
                 </div>
@@ -228,10 +220,10 @@ require_once 'templates/header.php';
                 <h3 style="margin-bottom:20px;">Order Review</h3>
 
                 <?php foreach ($items as $item): ?>
-                <div class="cart-total-row">
-                    <span><?php echo htmlspecialchars(truncateText($item['name'], 28)); ?></span>
-                    <span><?php echo formatPrice($item['price']); ?></span>
-                </div>
+                    <div class="cart-total-row">
+                        <span><?php echo htmlspecialchars(truncateText($item['name'], 28)); ?></span>
+                        <span><?php echo formatPrice($item['price']); ?></span>
+                    </div>
                 <?php endforeach; ?>
 
                 <div class="cart-total-row" style="margin-top:8px;padding-top:16px;border-top:2px solid var(--purple-200);">
